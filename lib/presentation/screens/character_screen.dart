@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, use_key_in_widget_constructors, prefer_final_fields, unused_field
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, use_key_in_widget_constructors, prefer_final_fields, unused_field, prefer_const_literals_to_create_immutables
 
 import 'package:breakingbloc/business_logic/cubit/characters_cubit.dart';
 import 'package:breakingbloc/constants/colors.dart';
 import 'package:breakingbloc/presentation/widgets/characters_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 
 class CharactersScreen extends StatefulWidget {
   @override
@@ -110,7 +111,21 @@ class _CharactersScreenState extends State<CharactersScreen> {
               )
             : Container(),
       ),
-      body: buildBlocWidget(),
+      body: OfflineBuilder(
+        connectivityBuilder: (
+          BuildContext context,
+          ConnectivityResult connectivity,
+          Widget child,
+        ) {
+          final bool connected = connectivity != ConnectivityResult.none;
+          if (connected) {
+            return buildBlocWidget();
+          } else {
+            return noInternetWidget();
+          }
+        },
+        child: showLoadingIndicator(),
+      ),
     );
   }
 
@@ -169,5 +184,27 @@ class _CharactersScreenState extends State<CharactersScreen> {
     setState(() {
       _searchTextController.clear();
     });
+  }
+
+  Widget noInternetWidget() {
+    return Center(
+        child: Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Text(
+            "Can't Connect to the internet",
+            style: TextStyle(fontSize: 22, color: MyColors.myGrey),
+          ),
+          Image.asset(
+            'assets/images/no_internet.png',
+            fit: BoxFit.cover,
+          )
+        ],
+      ),
+    ));
   }
 }

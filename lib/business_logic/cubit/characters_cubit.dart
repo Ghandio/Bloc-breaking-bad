@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:breakingbloc/data/models/characters.dart';
-import 'package:breakingbloc/data/repo/characters_repo.dart';
 import 'package:meta/meta.dart';
+
+import '../../data/models/characters.dart';
+import '../../data/models/quotes.dart';
+import '../../data/repo/characters_repo.dart';
 
 part 'characters_state.dart';
 
@@ -16,5 +18,11 @@ class CharactersCubit extends Cubit<CharactersState> {
       this.characters = characters;
     });
     return characters;
+  }
+
+  void getQuotes(String charName) {
+    charactersRepo.getQuote(charName).then((quotes) {
+      emit(QuotesLoaded(quotes));
+    });
   }
 }
